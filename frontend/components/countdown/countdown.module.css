@@ -1,0 +1,20 @@
+.timer_container {
+  text-align: center;
+  margin: 5px auto;
+  width: 90%;
+  max-width: 400px;
+  background-color: #fff8;
+  padding: 40px 20px;
+  border-radius: 20px;
+}
+
+.countdown {
+  padding-top: 30px;
+}
+
+.notice {
+  max-width: 350px;
+  text-align: center;
+  margin: 5px auto;
+  font-size: 16px;
+}

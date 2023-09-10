@@ -1,0 +1,16 @@
+.container {
+  text-align: center;
+  width: 80%;
+  gap: 1.5rem;
+  margin: auto;
+}
+
+.actions_container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  width: 80%;
+  gap: 1.5rem;
+  margin: auto;
+}

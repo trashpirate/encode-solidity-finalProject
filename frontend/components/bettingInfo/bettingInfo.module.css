@@ -1,0 +1,80 @@
+.error_message {
+  padding: 20px 0px;
+  color: red;
+  text-align: center;
+}
+
+.message {
+  text-align: center;
+  padding: 20px 0px;
+}
+
+.container {
+
+  /* display: flex;
+  flex-direction: column;
+  justify-content: center; */
+  margin: 30px auto;
+}
+
+.result_container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0px 20px;
+}
+
+.progressbar {
+  /* background-color: #181818; */
+  border: solid;
+  border-color: #ccc;
+  border-radius: 5px;
+  position: relative;
+  transform: translateY(-50%);
+  top: 50%;
+  width: 50px;
+  height: 250px;
+  text-align: center;
+  margin: auto;
+  margin-bottom: 40px;
+}
+
+.progressbar_up {
+  background-color: green;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--percent-up);
+  border-top: 6px solid #fff;
+  box-sizing: border-box;
+  animation: grow 1.5s ease-out forwards;
+  transform-origin: bottom;
+}
+
+.progressbar_down {
+  background-color: red;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--percent-down);
+  border-top: 6px solid #fff;
+  box-sizing: border-box;
+  animation: grow 1.5s ease-out forwards;
+  transform-origin: bottom;
+}
+
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+.chart_container {
+  /* position: relative; */
+  text-align: center;
+  margin: 10px auto;
+   /* width: 80%; */
+   height: 30vh;
+}
