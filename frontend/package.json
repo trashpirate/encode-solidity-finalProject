@@ -25,7 +25,7 @@
     "@types/react-dom": "18.2.4",
     "axios": "^1.4.0",
     "chart.js": "^4.4.0",
-    "connectkit": "^1.4.0",
+    "connectkit": "^1.5.3",
     "dotenv": "^16.3.1",
     "encoding": "^0.1.13",
     "eslint": "8.42.0",
