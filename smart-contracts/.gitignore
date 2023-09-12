@@ -72,3 +72,8 @@ package-lock.json
 yarn.lock
 
 templates/evm/core/pages/api
+
+# hardhat build files
+artifacts
+cache
+typechain-types
