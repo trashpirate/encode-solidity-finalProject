@@ -30,6 +30,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "Betting",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Betting__factory>;
+    getContractFactory(
       name: "MyERC20Token",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MyERC20Token__factory>;
@@ -55,6 +59,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
+      name: "Betting",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Betting>;
+    getContractAt(
       name: "MyERC20Token",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -77,6 +86,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
+      name: "Betting",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Betting>;
+    deployContract(
       name: "MyERC20Token",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MyERC20Token>;
@@ -101,6 +114,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
+    deployContract(
+      name: "Betting",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Betting>;
     deployContract(
       name: "MyERC20Token",
       args: any[],

@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as myErc20Sol from "./MyERC20.sol";
+export { Betting__factory } from "./Betting__factory";

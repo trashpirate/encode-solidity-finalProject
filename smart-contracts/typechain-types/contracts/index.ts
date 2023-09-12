@@ -3,3 +3,4 @@
 /* eslint-disable */
 import type * as myErc20Sol from "./MyERC20.sol";
 export type { myErc20Sol };
+export type { Betting } from "./Betting";

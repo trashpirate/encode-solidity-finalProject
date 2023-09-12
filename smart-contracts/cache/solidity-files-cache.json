@@ -221,6 +221,44 @@
       "artifacts": [
         "IERC20Metadata"
       ]
+    },
+    "/home/oates/projects/encode-solidity-finalProject/smart-contracts/contracts/Betting.sol": {
+      "lastModificationDate": 1694492162726,
+      "contentHash": "61c38874bc73845a0526519a105dee15",
+      "sourceName": "contracts/Betting.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "./MyERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "Betting"
+      ]
     }
   }
 }
