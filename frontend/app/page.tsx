@@ -8,15 +8,15 @@ import Image from "next/image";
 export default function Home() {
   return (
     <main className={styles.main}>
-      <h3 className={styles.notice}>V1.1 BETA</h3>
-      <h1>PLACE YOUR BET</h1>
-      <h4>Will $LICK price go UP or DOWN?</h4>
+      <h1>BETTING DAPP</h1>
+      <h2>PLACE YOUR BET</h2>
+      <h4>Will $MTK price go UP or DOWN?</h4>
       <Image
-        src="/betting_icon_0.png"
-        width={225}
-        height={125}
-        alt="betting illustration petlfg"
-        style={{ margin: "20px auto", filter: "drop-shadow(0 0 0.1rem #a85507)" }}
+        src="/UporDown.png"
+        width={250}
+        height={225}
+        alt="betting illustration betting dapp"
+        style={{ margin: "20px auto" }}
       />
       <CountdownTimer />
       <Betting></Betting>
