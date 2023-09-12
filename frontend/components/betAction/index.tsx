@@ -61,7 +61,7 @@ export default function BetAction() {
 
   return (
     <div className={styles.container}>
-      {(!bettingAllowed || roundID == null) && (
+      {/* {(!bettingAllowed || roundID == null) && (
         <h2 className={styles.container_buttons} style={{ margin: "auto" }}>
           Betting Closed!
         </h2>
@@ -85,7 +85,8 @@ export default function BetAction() {
             <BetButton action="DOWN" transferAmount={transferAmount}></BetButton>
           </div>
         </div>
-      )}
+      )} */}
+      <BetButton />
     </div>
   );
 }
