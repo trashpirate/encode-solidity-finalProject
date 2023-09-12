@@ -7,7 +7,7 @@ import {MyERC20Token} from "./MyERC20.sol";
 /// @title Betting Contract using ERC20
 /// @author Nadina Oates
 /// @notice You can use this contract for running futures bets on price movement
-/// @dev 
+/// @dev
 /// @custom:teaching This is a bootcamp final project
 contract Betting is Ownable {
     /// @notice Address of the token used as payment for the bets
@@ -17,7 +17,11 @@ contract Betting is Ownable {
     /// @notice Amount of tokens required for placing a bet that goes for the owner pool
     uint256 public betFee;
     /// @notice Amount of tokens in the prize pool
-    uint256 public prizePool;
+    uint256 public totalPool;
+    /// @notice Amount of tokens betting UP
+    uint256 public upPool;
+    /// @notice Amount of tokens betting DOWN
+    uint256 public downPool;
     /// @notice Amount of tokens in the owner pool
     uint256 public ownerPool;
     /// @notice Flag indicating whether the betting is open for bets or not
@@ -26,20 +30,24 @@ contract Betting is Ownable {
     uint256 public roundClosingTime;
     /// @notice Mapping of prize available for withdraw for each account
     mapping(address => uint256) public prize;
+    /// @notice Mapping of betting info for each account
+    mapping(address => BetInfo) public book;
 
-    /// @dev List of bet slots
-    address[] _slots;
+    enum Position {
+        up, down
+    }
+
+    struct BetInfo {
+        Position position;
+        uint256 amount;
+        bool claimed;
+    }
+
 
     /// @notice Constructor function
-    /// @param _betPrice Amount of tokens required for placing a bet that goes for the prize pool
-    /// @param _betFee Amount of tokens required for placing a bet that goes for the owner pool
-    constructor(
-        uint256 _betPrice,
-        uint256 _betFee
-    ) {
-        paymentToken = new MyERC20Token(msg.sender);
-        betPrice = _betPrice;
-        betFee = _betFee;
+    /// @param _tokenAddress address of the token contract
+    constructor(address _tokenAddress) {
+        paymentToken = MyERC20Token(_tokenAddress);
     }
 
     /// @notice Passes when the betting round is at closed state
@@ -67,36 +75,36 @@ contract Betting is Ownable {
         roundOpen = true;
     }
 
-    /// @notice Charges the bet price and creates a new bet slot with the sender's address
-    function bet() public whenRoundOpen {
-        ownerPool += betFee;
-        prizePool += betPrice;
-        _slots.push(msg.sender);
-        paymentToken.transferFrom(msg.sender, address(this), betPrice + betFee);
+    /// @notice the sender's address places a bet with a token amount for UP
+    function betUp(uint256 amount) public whenRoundOpen {
+        // ownerPool += betFee * amount;
+        upPool += amount;
+        book[msg.sender].position = Position.up;
+        book[msg.sender].amount += amount;
+        paymentToken.transferFrom(msg.sender, address(this), amount);
     }
 
-    // /// @notice Calls the bet function `times` times
-    // function betMany(uint256 times) external {
-    //     require(times > 0);
-    //     while (times > 0) {
-    //         bet();
-    //         times--;
-    //     }
-    // }
-
+    /// @notice  the sender's address places a bet with a token amount for DOWN
+    function betDown(uint256 amount) public whenRoundOpen {
+        // ownerPool += betFee * amount;
+        downPool += amount;
+        book[msg.sender].position = Position.down;
+        book[msg.sender].amount += amount;
+        paymentToken.transferFrom(msg.sender, address(this), amount);
+    }
+    
     /// @notice Closes the betting round and calculates the prize, if any
     /// @dev Anyone can call this function at any time after the closing time
-    function closeRound() external {
+    function closeRound() external onlyOwner {
         require(block.timestamp >= roundClosingTime, "Too soon to close");
         require(roundOpen, "Already closed");
-        if (_slots.length > 0) {
-            // TODO
-            // uint256 winnerIndex = getRandomNumber() % _slots.length;
-            // address winner = _slots[winnerIndex];
-            // prize[winner] += prizePool;
-            prizePool = 0;
-            delete (_slots);
-        }
+        // if (_slots.length > 0) {
+        //     // TODO
+        //     // uint256 winnerIndex = getRandomNumber() % _slots.length;
+        //     // address winner = _slots[winnerIndex];
+        //     // prize[winner] += totalPool;
+        //     totalPool = 0;
+        // }
         roundOpen = false;
     }
 
@@ -113,5 +121,4 @@ contract Betting is Ownable {
         ownerPool -= amount;
         paymentToken.transfer(msg.sender, amount);
     }
-
 }

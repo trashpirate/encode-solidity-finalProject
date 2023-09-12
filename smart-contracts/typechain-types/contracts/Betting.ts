@@ -26,29 +26,38 @@ import type {
 export interface BettingInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "bet"
+      | "betDown"
       | "betFee"
       | "betPrice"
+      | "betUp"
+      | "book"
       | "claimPrize"
       | "closeRound"
+      | "downPool"
       | "openRound"
       | "owner"
       | "ownerPool"
       | "ownerWithdraw"
       | "paymentToken"
       | "prize"
-      | "prizePool"
       | "renounceOwnership"
       | "roundClosingTime"
       | "roundOpen"
+      | "totalPool"
       | "transferOwnership"
+      | "upPool"
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 
-  encodeFunctionData(functionFragment: "bet", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "betDown",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "betFee", values?: undefined): string;
   encodeFunctionData(functionFragment: "betPrice", values?: undefined): string;
+  encodeFunctionData(functionFragment: "betUp", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: "book", values: [AddressLike]): string;
   encodeFunctionData(
     functionFragment: "claimPrize",
     values: [BigNumberish]
@@ -57,6 +66,7 @@ export interface BettingInterface extends Interface {
     functionFragment: "closeRound",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "downPool", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "openRound",
     values: [BigNumberish]
@@ -72,7 +82,6 @@ export interface BettingInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "prize", values: [AddressLike]): string;
-  encodeFunctionData(functionFragment: "prizePool", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
@@ -82,16 +91,21 @@ export interface BettingInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "roundOpen", values?: undefined): string;
+  encodeFunctionData(functionFragment: "totalPool", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: "upPool", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "bet", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "betDown", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "betFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "betPrice", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "betUp", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "book", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "claimPrize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "closeRound", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "downPool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "openRound", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerPool", data: BytesLike): Result;
@@ -104,7 +118,6 @@ export interface BettingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "prize", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "prizePool", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -114,10 +127,12 @@ export interface BettingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "roundOpen", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "totalPool", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "upPool", data: BytesLike): Result;
 }
 
 export namespace OwnershipTransferredEvent {
@@ -176,15 +191,31 @@ export interface Betting extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  bet: TypedContractMethod<[], [void], "nonpayable">;
+  betDown: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
   betFee: TypedContractMethod<[], [bigint], "view">;
 
   betPrice: TypedContractMethod<[], [bigint], "view">;
 
+  betUp: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+
+  book: TypedContractMethod<
+    [arg0: AddressLike],
+    [
+      [bigint, bigint, boolean] & {
+        position: bigint;
+        amount: bigint;
+        claimed: boolean;
+      }
+    ],
+    "view"
+  >;
+
   claimPrize: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
   closeRound: TypedContractMethod<[], [void], "nonpayable">;
+
+  downPool: TypedContractMethod<[], [bigint], "view">;
 
   openRound: TypedContractMethod<
     [closingTime: BigNumberish],
@@ -206,13 +237,13 @@ export interface Betting extends BaseContract {
 
   prize: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
-  prizePool: TypedContractMethod<[], [bigint], "view">;
-
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
   roundClosingTime: TypedContractMethod<[], [bigint], "view">;
 
   roundOpen: TypedContractMethod<[], [boolean], "view">;
+
+  totalPool: TypedContractMethod<[], [bigint], "view">;
 
   transferOwnership: TypedContractMethod<
     [newOwner: AddressLike],
@@ -220,13 +251,15 @@ export interface Betting extends BaseContract {
     "nonpayable"
   >;
 
+  upPool: TypedContractMethod<[], [bigint], "view">;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
-    nameOrSignature: "bet"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+    nameOrSignature: "betDown"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "betFee"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -234,11 +267,30 @@ export interface Betting extends BaseContract {
     nameOrSignature: "betPrice"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "betUp"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "book"
+  ): TypedContractMethod<
+    [arg0: AddressLike],
+    [
+      [bigint, bigint, boolean] & {
+        position: bigint;
+        amount: bigint;
+        claimed: boolean;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "claimPrize"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "closeRound"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "downPool"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "openRound"
   ): TypedContractMethod<[closingTime: BigNumberish], [void], "nonpayable">;
@@ -258,9 +310,6 @@ export interface Betting extends BaseContract {
     nameOrSignature: "prize"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "prizePool"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
@@ -270,8 +319,14 @@ export interface Betting extends BaseContract {
     nameOrSignature: "roundOpen"
   ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
+    nameOrSignature: "totalPool"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "upPool"
+  ): TypedContractMethod<[], [bigint], "view">;
 
   getEvent(
     key: "OwnershipTransferred"
