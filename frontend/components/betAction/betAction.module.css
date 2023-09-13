@@ -54,7 +54,7 @@
 }
 
 .form {
-  height: 200px;
+  min-height: 60px;
   margin: auto;
   color: #000;
   display: flex;
