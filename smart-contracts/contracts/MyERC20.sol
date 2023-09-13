@@ -7,12 +7,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MyERC20Token is ERC20, Ownable {
 
-    constructor(address newOwner) ERC20("MyERC20Token", "MTK") {
-        mint(newOwner, 1000000 * 10 ** 18);
-        transferOwnership(newOwner);
+    constructor() ERC20("MyERC20Token", "MTK") {
+        _mint(msg.sender, 1000000 * 10 ** 18);
     }
- 
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
-    }
+
 }

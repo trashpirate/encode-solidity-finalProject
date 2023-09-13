@@ -2,116 +2,178 @@
 pragma solidity ^0.8.9;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {MyERC20Token} from "./MyERC20.sol";
 
 /// @title Betting Contract using ERC20
 /// @author Nadina Oates
 /// @notice You can use this contract for running futures bets on price movement
-/// @dev 
+/// @dev
 /// @custom:teaching This is a bootcamp final project
-contract Betting is Ownable {
+contract Betting is Ownable, ReentrancyGuard {
     /// @notice Address of the token used as payment for the bets
     MyERC20Token public paymentToken;
-    /// @notice Amount of tokens required for placing a bet that goes for the prize pool
-    uint256 public betPrice;
-    /// @notice Amount of tokens required for placing a bet that goes for the owner pool
-    uint256 public betFee;
+    /// @notice betting free going to owner: rate (e.g. 200 = 2%, 150 = 1.50%)
+    uint256 public bettingFee;
     /// @notice Amount of tokens in the prize pool
-    uint256 public prizePool;
+    uint256 public totalPool;
+    /// @notice Amount of tokens betting UP
+    uint256 public upPool;
+    /// @notice Amount of tokens betting DOWN
+    uint256 public downPool;
     /// @notice Amount of tokens in the owner pool
     uint256 public ownerPool;
     /// @notice Flag indicating whether the betting is open for bets or not
     bool public roundOpen;
-    /// @notice Timestamp of the lottery next closing date and time
+    /// @notice Timestamp of the round's next closing date and time
     uint256 public roundClosingTime;
+    /// @notice Timestamp of the betting not allowed anymore: must be before closing time
+    uint256 public roundLockTime;
+    /// @notice Locked price at the start of the round
+    uint256 public lockedPrice;
+    /// @notice Winner: UP == true, DOWN == false
+    Position public winner;
+    /// @notice reward amount that is totally paid out
+    uint256 public rewardAmount;
+    /// @notice reward amount to calculate the proportions between winners
+    uint256 public rewardBaseAmount;
+
     /// @notice Mapping of prize available for withdraw for each account
     mapping(address => uint256) public prize;
+    /// @notice Mapping of betting info for each account
+    mapping(address => BetInfo) public book;
 
-    /// @dev List of bet slots
-    address[] _slots;
+    /// @notice Positions to bet on
+    enum Position {
+        up,
+        down
+    }
+    /// @notice bettig info for each player
+    struct BetInfo {
+        Position position;
+        uint256 amount;
+        bool claimed;
+    }
 
     /// @notice Constructor function
-    /// @param _betPrice Amount of tokens required for placing a bet that goes for the prize pool
-    /// @param _betFee Amount of tokens required for placing a bet that goes for the owner pool
-    constructor(
-        uint256 _betPrice,
-        uint256 _betFee
-    ) {
-        paymentToken = new MyERC20Token(msg.sender);
-        betPrice = _betPrice;
-        betFee = _betFee;
+    /// @param _tokenAddress address of the token contract
+    constructor(address _tokenAddress) {
+        paymentToken = MyERC20Token(_tokenAddress);
+
+        // set betting fee to 0.2%
+        bettingFee = 20; 
     }
 
     /// @notice Passes when the betting round is at closed state
     modifier whenRoundClosed() {
-        require(!roundOpen, "Betting is open");
+        require(!roundOpen, "Betting round is open");
         _;
     }
 
     /// @notice Passes when the betting is at open state and the current block timestamp is lower than the betting closing date
     modifier whenRoundOpen() {
         require(
-            roundOpen && block.timestamp < roundClosingTime,
+            roundOpen && block.timestamp < roundLockTime,
             "Betting round is closed"
         );
         _;
     }
 
     /// @notice Opens the betting round for receiving bets
-    function openRound(uint256 closingTime) external onlyOwner whenRoundClosed {
+    function openRound(uint256 _lockTime, uint256 _closingTime, uint256 _startPrice) external onlyOwner whenRoundClosed {
         require(
-            closingTime > block.timestamp,
+            _closingTime > block.timestamp,
             "Closing time must be in the future"
         );
-        roundClosingTime = closingTime;
+        require(
+            _closingTime > _lockTime,
+            "Closing time must be later than lock time"
+        );
+        roundClosingTime = _closingTime;
+        roundLockTime = _lockTime;
+        lockedPrice = _startPrice;
+
         roundOpen = true;
     }
 
-    /// @notice Charges the bet price and creates a new bet slot with the sender's address
-    function bet() public whenRoundOpen {
-        ownerPool += betFee;
-        prizePool += betPrice;
-        _slots.push(msg.sender);
-        paymentToken.transferFrom(msg.sender, address(this), betPrice + betFee);
+    /// @notice the sender's address places a bet with a token amount for UP
+    function betUp(uint256 amount) public whenRoundOpen {
+        // ownerPool += bettingFee * amount;
+        totalPool += amount;
+        upPool += amount;
+        book[msg.sender].position = Position.up;
+        book[msg.sender].amount += amount;
+        paymentToken.transferFrom(msg.sender, address(this), amount);
     }
 
-    // /// @notice Calls the bet function `times` times
-    // function betMany(uint256 times) external {
-    //     require(times > 0);
-    //     while (times > 0) {
-    //         bet();
-    //         times--;
-    //     }
-    // }
+    /// @notice  the sender's address places a bet with a token amount for DOWN
+    function betDown(uint256 amount) public whenRoundOpen {
+        // ownerPool += bettingFee * amount;
+
+        totalPool += amount;
+        downPool += amount;
+        book[msg.sender].position = Position.down;
+        book[msg.sender].amount += amount;
+        paymentToken.transferFrom(msg.sender, address(this), amount);
+    }
 
     /// @notice Closes the betting round and calculates the prize, if any
-    /// @dev Anyone can call this function at any time after the closing time
-    function closeRound() external {
+    /// @dev Only owner can call this function at any time after the closing time
+    function closeRound(uint256 endPrice) external onlyOwner {
         require(block.timestamp >= roundClosingTime, "Too soon to close");
         require(roundOpen, "Already closed");
-        if (_slots.length > 0) {
-            // TODO
-            // uint256 winnerIndex = getRandomNumber() % _slots.length;
-            // address winner = _slots[winnerIndex];
-            // prize[winner] += prizePool;
-            prizePool = 0;
-            delete (_slots);
+        
+        uint256 fee;
+        if (lockedPrice < endPrice) {
+            // UP wins
+            winner = Position.up;
+            fee = (totalPool * bettingFee) / 10000 ;
+            ownerPool += fee;
+            rewardAmount = totalPool - fee;
+            rewardBaseAmount = upPool;
+            
+        } else if (lockedPrice > endPrice){
+            // DOWN wins
+            winner = Position.down;
+            fee = (totalPool * bettingFee) / 10000 ;
+            ownerPool += fee;
+            rewardAmount = totalPool - fee;
+            rewardBaseAmount = downPool;
         }
+        else {
+            // House wins
+            ownerPool += totalPool;
+        }
+        totalPool = 0;
+        lockedPrice = 0;
         roundOpen = false;
     }
 
-    /// @notice Withdraws `amount` from that accounts's prize pool
-    function claimPrize(uint256 amount) external {
-        require(amount <= prize[msg.sender], "Not enough prize");
-        prize[msg.sender] -= amount;
-        paymentToken.transfer(msg.sender, amount);
+    function eligible(address account) public view returns (bool){
+        if (book[account].position == winner && book[account].claimed == false && book[account].amount > 0){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
-    /// @notice Withdraws `amount` from the owner's pool
-    function ownerWithdraw(uint256 amount) external onlyOwner {
-        require(amount <= ownerPool, "Not enough fees collected");
-        ownerPool -= amount;
+    /// @notice withdraws prize (need reentrancy guard?)
+    function claimPrize() external nonReentrant {
+        require(eligible(msg.sender), "Not eligible for prize.");
+        uint256 amount = book[msg.sender].amount * rewardAmount / rewardBaseAmount;
+        book[msg.sender].claimed = true;
         paymentToken.transfer(msg.sender, amount);
+
     }
 
+    function reward(address account) external view returns (uint256) {
+        return (book[account].amount * rewardAmount / rewardBaseAmount);
+    }
+
+    /// @notice withdraws ownerpool from the owner's pool (need reentrancy guard?)
+    function ownerWithdraw() external onlyOwner {
+        require(ownerPool > 0, "Not enough fees collected");
+        paymentToken.transfer(msg.sender, ownerPool);
+    }
 }

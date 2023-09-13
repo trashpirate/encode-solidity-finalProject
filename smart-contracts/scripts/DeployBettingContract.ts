@@ -1,9 +1,13 @@
 import { ethers } from "ethers";
-import { MyERC20Token__factory } from "../typechain-types";
+import { Betting__factory } from "../typechain-types";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
+  const args = process.argv.slice(2);
+  const tokenAddress = args[0];
+  console.log(`Token Address ${tokenAddress}`);
+
   const provider = new ethers.JsonRpcProvider(process.env.RPC_ENDPOINT_URL ?? "");
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEYS?.split(",")[0] ?? "", provider);
 
@@ -15,8 +19,8 @@ async function main() {
     throw new Error("Not enough ether");
   }
 
-  const contractFactory = new MyERC20Token__factory(wallet);
-  const contract = await contractFactory.deploy();
+  const contractFactory = new Betting__factory(wallet);
+  const contract = await contractFactory.deploy(tokenAddress);
   await contract.waitForDeployment();
   const contractAddress = await contract.getAddress();
   console.log(`Token contract deployed at ${contractAddress}`);
