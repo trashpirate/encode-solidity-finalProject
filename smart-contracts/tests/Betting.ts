@@ -10,7 +10,7 @@ let tokenAddress: AddressLike;
 // function to deploy token contract
 async function deployTokenContract() {
   const tokenFactory = await ethers.getContractFactory("MyERC20Token");
-  const tokenContract = await tokenFactory.deploy("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+  const tokenContract = await tokenFactory.deploy();
   await tokenContract.waitForDeployment();
   tokenAddress = await tokenContract.getAddress();
   return tokenContract;

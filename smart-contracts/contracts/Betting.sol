@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {MyERC20Token} from "./MyERC20.sol";
 
 /// @title Betting Contract using ERC20
@@ -9,7 +10,7 @@ import {MyERC20Token} from "./MyERC20.sol";
 /// @notice You can use this contract for running futures bets on price movement
 /// @dev
 /// @custom:teaching This is a bootcamp final project
-contract Betting is Ownable {
+contract Betting is Ownable, ReentrancyGuard {
     /// @notice Address of the token used as payment for the bets
     MyERC20Token public paymentToken;
     /// @notice betting free going to owner: rate (e.g. 200 = 2%, 150 = 1.50%)
@@ -158,7 +159,7 @@ contract Betting is Ownable {
     }
 
     /// @notice withdraws prize (need reentrancy guard?)
-    function claimPrize() external {
+    function claimPrize() external nonReentrant {
         require(eligible(msg.sender), "Not eligible for prize.");
         uint256 amount = book[msg.sender].amount * rewardAmount / rewardBaseAmount;
         book[msg.sender].claimed = true;
