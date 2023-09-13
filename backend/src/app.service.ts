@@ -224,8 +224,8 @@ export class AppService {
   }
 
   async getTxnHashViz() : Promise<string> {
-    const MODULUS = 1024;
-    const CONTRACT_WATCH_ADDRESS = "0xF6FB4AaAdc94450f0Eb23f0eD5CECFac25F57725";
+    const MODULUS = 2048;
+    const CONTRACT_WATCH_ADDRESS = "0xA515cCf18dEa97601c2A9cECBf041ba5ED486D7e";
 
     let response: AxiosResponse<any, any>;
 
