@@ -89,7 +89,7 @@ contract Betting is Ownable {
             "Closing time must be later than lock time"
         );
         roundClosingTime = _closingTime;
-        lockTime = _lockTime;
+        roundLockTime = _lockTime;
         lockedPrice = _startPrice;
 
         roundOpen = true;
@@ -121,7 +121,7 @@ contract Betting is Ownable {
     function closeRound(uint256 endPrice) external onlyOwner {
         require(block.timestamp >= roundClosingTime, "Too soon to close");
         require(roundOpen, "Already closed");
-
+        
         uint256 fee;
         if (lockedPrice < endPrice) {
             // UP wins
@@ -149,7 +149,7 @@ contract Betting is Ownable {
     }
 
     function eligible(address account) public view returns (bool){
-        if (book[account].position == winner && book[account].claimed == false){
+        if (book[account].position == winner && book[account].claimed == false && book[account].amount > 0){
             return true;
         }
         else {
