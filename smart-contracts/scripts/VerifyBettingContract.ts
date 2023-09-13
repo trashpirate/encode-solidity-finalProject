@@ -7,7 +7,7 @@ dotenv.config();
 // run this script with hardhat: npx hardhat run ./scripts/VerifyTokenContract.ts --network NETWORKNAME
 
 const constructorArguments = ["0xa84517F6E1448B7d6Cb50c8Af1579F8bEB6092C7"];
-const contractAddress =  "0xA515cCf18dEa97601c2A9cECBf041ba5ED486D7e";
+const contractAddress =  "0xAed298e5d34a32cf6510fB14b2fedBf8575536fe";
 
 async function main() {
     // define provider

@@ -11,7 +11,7 @@ This is the second iteration of a DApp that allows users to place bets on future
 https://sepolia.etherscan.io/address/0xa84517F6E1448B7d6Cb50c8Af1579F8bEB6092C7
 
 ## Betting Contract
-https://sepolia.etherscan.io/address/0xA515cCf18dEa97601c2A9cECBf041ba5ED486D7e
+https://sepolia.etherscan.io/address/0xAed298e5d34a32cf6510fB14b2fedBf8575536fe
 
 
 ## Issues:
