@@ -24,8 +24,10 @@ contract Betting is Ownable {
     uint256 public ownerPool;
     /// @notice Flag indicating whether the betting is open for bets or not
     bool public roundOpen;
-    /// @notice Timestamp of the lottery next closing date and time
+    /// @notice Timestamp of the round's next closing date and time
     uint256 public roundClosingTime;
+    /// @notice Timestamp of the betting not allowed anymore: must be before closing time
+    uint256 public roundLockTime;
     /// @notice Locked price at the start of the round
     uint256 public lockedPrice;
     /// @notice Winner: UP == true, DOWN == false
@@ -63,27 +65,31 @@ contract Betting is Ownable {
 
     /// @notice Passes when the betting round is at closed state
     modifier whenRoundClosed() {
-        require(!roundOpen, "Betting is open");
+        require(!roundOpen, "Betting round is open");
         _;
     }
 
     /// @notice Passes when the betting is at open state and the current block timestamp is lower than the betting closing date
     modifier whenRoundOpen() {
         require(
-            roundOpen && block.timestamp < roundClosingTime,
+            roundOpen && block.timestamp < roundLockTime,
             "Betting round is closed"
         );
         _;
     }
 
     /// @notice Opens the betting round for receiving bets
-    function openRound(uint256 _closingTime, uint256 _startPrice) external onlyOwner whenRoundClosed {
+    function openRound(uint256 _lockTime, uint256 _closingTime, uint256 _startPrice) external onlyOwner whenRoundClosed {
         require(
             _closingTime > block.timestamp,
             "Closing time must be in the future"
         );
+        require(
+            _closingTime > _lockTime,
+            "Closing time must be later than lock time"
+        );
         roundClosingTime = _closingTime;
-
+        lockTime = _lockTime;
         lockedPrice = _startPrice;
 
         roundOpen = true;
@@ -111,7 +117,7 @@ contract Betting is Ownable {
     }
 
     /// @notice Closes the betting round and calculates the prize, if any
-    /// @dev Anyone can call this function at any time after the closing time
+    /// @dev Only owner can call this function at any time after the closing time
     function closeRound(uint256 endPrice) external onlyOwner {
         require(block.timestamp >= roundClosingTime, "Too soon to close");
         require(roundOpen, "Already closed");
