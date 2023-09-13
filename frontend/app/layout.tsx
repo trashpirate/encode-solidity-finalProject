@@ -32,32 +32,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta charSet="utf-8" />
       <title> Betting Dapp</title>
-      <meta
-        name="description"
-        content="A simple betting Dapp"
-        key="desc"
-      />
+      <meta name="description" content="A simple betting Dapp" key="desc" />
 
       <meta name="twitter:card" content="summary_large_image" key="twcard" />
-      <meta name="twitter:creator" content="PetLFG" key="twhandle" />
+      <meta name="twitter:creator" content="Encode Bootcamp" key="twhandle" />
 
       <meta property="og:title" content="Betting Platform" key="ogtitle" />
       <meta property="og:site_name" content="Betting Dapp" key="ogsitename" />
-      <meta
-        property="og:description"
-        content="A simple betting Dapp"
-        key="ogdesc"
-      />
+      <meta property="og:description" content="A simple betting Dapp" key="ogdesc" />
       <meta property="og:url" content="http://localhost:3000" key="ogurl" />
-      <meta
-        property="og:image"
-        content="/"
-        key="ogimage"
-      />
-      <meta
-        property="og:image:url"
-        content="/"
-      />
+      <meta property="og:image" content="/" key="ogimage" />
+      <meta property="og:image:url" content="/" />
       <meta property="og:image:type" content="image/png" />
       <WagmiConfig config={config}>
         <ConnectKitProvider mode="dark">
@@ -67,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 display: "flex",
                 flexDirection: "column",
                 minHeight: "105vh",
-                backgroundColor: 'papayawhip'
+                backgroundColor: "papayawhip",
               }}
               //   backgroundImage: "url(petlfg_betting_bg_2.jpg)",
               //   backgroundSize: "cover",

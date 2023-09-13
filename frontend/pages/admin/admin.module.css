@@ -1,0 +1,12 @@
+.main {
+  /* padding: 2rem 0; */
+  text-align: center;
+  justify-self: center;
+  margin: 20px auto;
+}
+
+.notice {
+  font-weight: 400;
+  text-align: center;
+  margin: 5px auto 40px auto;
+}

@@ -11,3 +11,7 @@ https://sepolia.etherscan.io/address/0xA515cCf18dEa97601c2A9cECBf041ba5ED486D7e
 Issues:
 - need to reenter bet amount after approving
 - staring round occurs separately in backend and on chain
+- claim reward should appear when round closed
+- claim button is not working yet
+- backend needs work to integrate smart contract and prize fetching
+- separate page for owner panel.

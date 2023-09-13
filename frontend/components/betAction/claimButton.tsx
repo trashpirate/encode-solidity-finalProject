@@ -14,7 +14,6 @@ export default function ClaimButton() {
     functionName: "claimPrize",
   });
   const { data, error, isError, write } = useContractWrite(config);
-  console.log(data);
 
   const { isLoading, isSuccess } = useWaitForTransaction({
     confirmations: 2,
