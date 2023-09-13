@@ -23,7 +23,7 @@ async function main() {
   const contract = await contractFactory.deploy(tokenAddress);
   await contract.waitForDeployment();
   const contractAddress = await contract.getAddress();
-  console.log(`Token contract deployed at ${contractAddress}`);
+  console.log(`Betting contract deployed at ${contractAddress}`);
 
 }
 
