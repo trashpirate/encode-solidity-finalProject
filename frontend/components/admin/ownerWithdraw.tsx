@@ -1,19 +1,17 @@
-import styles from "./betAction.module.css";
+import styles from "./admin.module.css";
 import { bettingABI } from "@/assets/Betting";
 import { parseUnits } from "viem";
 import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
-
 
 const TOKEN_CONTRACT = process.env.NEXT_PUBLIC_TOKEN_CONTRACT as `0x${string}`;
 const BETTING_CONTRACT = process.env.NEXT_PUBLIC_BETTING_ADDRESS as `0x${string}`;
 const NETWORK_SCAN = process.env.NEXT_PUBLIC_NETWORK_SCAN;
 
-export default function OwnerClaimButton(params: {OwnerWithdrawlAmount: string}) {
+export default function OwnerClaimButton() {
   const { config } = usePrepareContractWrite({
     address: BETTING_CONTRACT as `0x${string}`,
     abi: bettingABI,
-    functionName: 'ownerWithdraw',
-    args: [parseUnits(`${params.OwnerWithdrawlAmount ?? '0'}`, 18)],
+    functionName: "ownerWithdraw",
   });
   const { data, error, isError, write } = useContractWrite(config);
 
@@ -27,7 +25,7 @@ export default function OwnerClaimButton(params: {OwnerWithdrawlAmount: string})
       <div>
         <button
           className={styles.button}
-          style={{ background: "rgb(14, 207, 143)"}}
+          style={{ background: "rgb(14, 207, 143)" }}
           disabled={!write || isLoading}
           onClick={() => write?.()}
         >

@@ -1,17 +1,26 @@
-import styles from "./betAction.module.css";
-import { bettingABI } from "@/assets/Betting";
-import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import styles from "./admin.module.css";
 
+import { tokenABI } from "@/assets/MyERC20Token";
+import { bettingABI } from "@/assets/Betting";
+
+import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { parseUnits } from "viem";
 
 const TOKEN_CONTRACT = process.env.NEXT_PUBLIC_TOKEN_CONTRACT as `0x${string}`;
 const BETTING_CONTRACT = process.env.NEXT_PUBLIC_BETTING_ADDRESS as `0x${string}`;
 const NETWORK_SCAN = process.env.NEXT_PUBLIC_NETWORK_SCAN;
 
-export default function CloseRoundButton() {
+// Open the round only if owner of the contract
+export default function OpenRoundButton(params: { lockTime: string; closingTime: string }) {
   const { config } = usePrepareContractWrite({
     address: BETTING_CONTRACT as `0x${string}`,
     abi: bettingABI,
-    functionName: "closeRound",
+    functionName: "openRound",
+    args: [
+      parseUnits(`${params.closingTime ?? "2"}`, 18),
+      parseUnits(`${params.closingTime ?? "2"}`, 18),
+      parseUnits(`${params.closingTime ?? "2"}`, 18),
+    ],
   });
   const { data, error, isError, write } = useContractWrite(config);
 
@@ -25,11 +34,11 @@ export default function CloseRoundButton() {
       <div>
         <button
           className={styles.button}
-          style={{ background: "rgb(240, 31, 94)"}}
+          style={{ background: "rgb(14, 207, 143)" }}
           disabled={!write || isLoading}
           onClick={() => write?.()}
         >
-          {isLoading ? "Closing Round..." : 'Close Round'}
+          {isLoading ? "Opening round..." : `Open Round`}
         </button>
       </div>
       {isSuccess && (
