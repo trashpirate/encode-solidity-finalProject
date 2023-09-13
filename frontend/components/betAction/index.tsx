@@ -1,8 +1,10 @@
 import styles from "./betAction.module.css";
 import { useEffect, useState } from "react";
-import BetButton from "./betButton";
 import { io } from "socket.io-client";
 import ApproveButton from "./approveButton";
+import BetUpButton from "./betUpButton";
+import BetDownButton from "./betDownButton";
+import ClaimButton from "./claimButton";
 
 export default function BetAction() {
   const [transferAmount, setTransferAmount] = useState("");
@@ -82,12 +84,12 @@ export default function BetAction() {
             />
           </label>
         </form>
-
-        <div className={styles.container_buttons}>
-          <BetButton action="UP" transferAmount={transferAmount}></BetButton>
-          <BetButton action="DOWN" transferAmount={transferAmount}></BetButton>
-        </div>
         <ApproveButton transferAmount={transferAmount}></ApproveButton>
+        <div className={styles.container_buttons}>
+          <BetUpButton transferAmount={transferAmount}></BetUpButton>
+          <BetDownButton transferAmount={transferAmount}></BetDownButton>
+        </div>
+        <ClaimButton></ClaimButton>
       </div>
     </div>
   );

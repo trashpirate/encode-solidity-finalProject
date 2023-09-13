@@ -5,7 +5,7 @@ import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from
 import { parseUnits } from "viem";
 
 const TOKEN_CONTRACT = process.env.NEXT_PUBLIC_TOKEN_CONTRACT as `0x${string}`;
-const BETTING_CONTRACT = process.env.NEXT_PUBLIC_TOKEN_CONTRACT as `0x${string}`;
+const BETTING_CONTRACT = process.env.NEXT_PUBLIC_BETTING_CONTRACT as `0x${string}`;
 const NETWORK_SCAN = process.env.NEXT_PUBLIC_NETWORK_SCAN;
 
 export default function ApproveButton(params: { transferAmount: string }) {

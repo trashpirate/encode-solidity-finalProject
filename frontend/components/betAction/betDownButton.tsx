@@ -1,17 +1,18 @@
 import styles from "./betAction.module.css";
+
 import { bettingABI } from "@/assets/Betting";
 import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { parseUnits } from "viem";
 
-
-const TOKEN_CONTRACT = process.env.NEXT_PUBLIC_TOKEN_CONTRACT as `0x${string}`;
-const BETTING_CONTRACT = process.env.NEXT_PUBLIC_BETTING_ADDRESS as `0x${string}`;
+const BETTING_CONTRACT = process.env.NEXT_PUBLIC_BETTING_CONTRACT as `0x${string}`;
 const NETWORK_SCAN = process.env.NEXT_PUBLIC_NETWORK_SCAN;
 
-export default function BetDownButton() {
+export default function BetDownButton(params: { transferAmount: string }) {
   const { config } = usePrepareContractWrite({
-    address: BETTING_CONTRACT as `0x${string}`,
+    address: BETTING_CONTRACT,
     abi: bettingABI,
     functionName: "betDown",
+    args: [parseUnits(params.transferAmount, 18)],
   });
   const { data, error, isError, write } = useContractWrite(config);
 
@@ -25,11 +26,11 @@ export default function BetDownButton() {
       <div>
         <button
           className={styles.button}
-          style={{ background: "rgb(240, 31, 94)"}}
+          style={{ background: "rgb(240, 31, 94)" }}
           disabled={!write || isLoading}
           onClick={() => write?.()}
         >
-          {isLoading ? "Submitting..." : `Bet Down`}
+          {isLoading ? "Submitting..." : `Bet DOWN`}
         </button>
       </div>
       {isSuccess && (
@@ -37,7 +38,7 @@ export default function BetDownButton() {
           Successfully Submitted!
           <a target={"_blank"} href={`${NETWORK_SCAN}/${data?.hash}`}>
             <div>
-              <p>View on BaseScan</p>
+              <p>View on Etherscan</p>
             </div>
           </a>
         </div>

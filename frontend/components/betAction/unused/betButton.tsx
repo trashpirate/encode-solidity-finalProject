@@ -13,7 +13,7 @@ export default function BetButton(params: { action: string; transferAmount: stri
   const { config } = usePrepareContractWrite({
     address: BETTING_CONTRACT,
     abi: bettingABI,
-    functionName: betFunction,
+    functionName: "betDown",
     args: [parseUnits(`${Number(params.transferAmount)}`, 18)],
   });
   const { data, error, isError, write } = useContractWrite(config);

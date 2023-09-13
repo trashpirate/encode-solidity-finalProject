@@ -1,20 +1,19 @@
 import styles from "./betAction.module.css";
-
 import { bettingABI } from "@/assets/Betting";
 import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
-import { parseUnits } from "viem";
 
-const BETTING_CONTRACT = process.env.NEXT_PUBLIC_BETTING_CONTRACT as `0x${string}`;
+
+const TOKEN_CONTRACT = process.env.NEXT_PUBLIC_TOKEN_CONTRACT as `0x${string}`;
+const BETTING_CONTRACT = process.env.NEXT_PUBLIC_BETTING_ADDRESS as `0x${string}`;
 const NETWORK_SCAN = process.env.NEXT_PUBLIC_NETWORK_SCAN;
 
-export default function ClaimButton() {
+export default function BetUpButton() {
   const { config } = usePrepareContractWrite({
-    address: BETTING_CONTRACT,
+    address: BETTING_CONTRACT as `0x${string}`,
     abi: bettingABI,
-    functionName: "claimPrize",
+    functionName: "betUp",
   });
   const { data, error, isError, write } = useContractWrite(config);
-  console.log(data);
 
   const { isLoading, isSuccess } = useWaitForTransaction({
     confirmations: 2,
@@ -26,19 +25,19 @@ export default function ClaimButton() {
       <div>
         <button
           className={styles.button}
-          style={{ background: "rgb(214, 165, 4)" }}
+          style={{ background: "rgb(14, 207, 143)"}}
           disabled={!write || isLoading}
           onClick={() => write?.()}
         >
-          {isLoading ? "Submitting..." : `Claim Reward`}
+          {isLoading ? "Submitting..." : `Bet Up`}
         </button>
       </div>
       {isSuccess && (
         <div className={styles.message}>
-          Successfully Claimed!
+          Successfully Submitted!
           <a target={"_blank"} href={`${NETWORK_SCAN}/${data?.hash}`}>
             <div>
-              <p>View on Etherscan</p>
+              <p>View on BaseScan</p>
             </div>
           </a>
         </div>
