@@ -15,7 +15,7 @@ export default function BetUpButton(params: { transferAmount: string }) {
     args: [parseUnits(params.transferAmount, 18)],
   });
   const { data, error, isError, write } = useContractWrite(config);
-  console.log(data);
+  console.log(error);
 
   const { isLoading, isSuccess } = useWaitForTransaction({
     confirmations: 2,

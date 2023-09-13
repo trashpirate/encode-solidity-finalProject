@@ -1,12 +1,8 @@
 import { ethers } from "ethers";
-import * as hre from "hardhat";
-import { Betting, Betting__factory, MyERC20Token, MyERC20Token__factory } from "../typechain-types";
+import { Betting, Betting__factory} from "../typechain-types";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-// run this script with hardhat: npx hardhat run ./scripts/VerifyTokenContract.ts --network NETWORKNAME
-
-const constructorArguments = ["0xa84517F6E1448B7d6Cb50c8Af1579F8bEB6092C7"];
 const contractAddress =  "0xAed298e5d34a32cf6510fB14b2fedBf8575536fe";
 
 async function main() {
@@ -30,22 +26,20 @@ async function main() {
     throw new Error("Not enough ether");
   }
 
-  // get contract
+  // get betting contract
   const contractFactory = new Betting__factory(wallet);
   const contract = (await contractFactory.attach(contractAddress)) as Betting;
 
-  // verify contract
-  console.log("Verifying contract on Etherscan...");
-  if (constructorArguments != null) {
-    await hre.run("verify:verify", {
-      address: contractAddress,
-      constructorArguments: constructorArguments,
-    });
-  } else {
-    await hre.run("verify:verify", {
-      address: contractAddress,
-    });
-  }
+  // open betting round
+  const timeoffset = 20 * 60;
+  const newLockTime = (Date.now() + timeoffset).toString();
+  const newClosingTime = (Date.now() + timeoffset + 5).toString();
+  const openTx = await contract.openRound(newLockTime, newClosingTime);
+  await openTx.wait();
+
+  const openFlag = await contract.roundOpen();
+  openFlag ? console.log('Round is open.') : console.log('Round is closed.')
+ 
 }
 
 main().catch((error) => {
