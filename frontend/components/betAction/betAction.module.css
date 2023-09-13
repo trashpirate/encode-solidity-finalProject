@@ -54,9 +54,12 @@
 }
 
 .form {
-  height: 60px;
+  min-height: 60px;
   margin: auto;
-  color: #000;
+  color: #000000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .form input {

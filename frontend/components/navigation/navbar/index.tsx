@@ -6,11 +6,11 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.navbar_menu}>
-        <a href="https://petlfg.com/" target={"_blank"}>
-          <img style={{ width: "48px", height: "48px" }} src="./petlfg.svg" alt="PetLFG LICK" />
+        <a href='/' target={"_blank"}>
+          <img style={{ width: "48px", height: "48px" }} src="./group4.svg" alt="Group4 Logo" />
         </a>
         <a
-          href="https://forms.gle/vA8RdUsUjPgeCp1bA"
+          href="https://forms.gle/nMA82tYCGM1gh4fm6"
           target={"_blank"}
           style={{
             color: `white`,
@@ -19,7 +19,7 @@ export default function Navbar() {
             borderRadius: `12px`,
           }}
         >
-          APPLY TO LIST
+          GIVE US FEEDBACK
         </a>
       </div>
       <ConnectKitButton />

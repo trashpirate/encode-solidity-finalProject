@@ -1,7 +1,10 @@
 import styles from "./betAction.module.css";
 import { useEffect, useState } from "react";
-import BetButton from "./betButton";
 import { io } from "socket.io-client";
+import ApproveButton from "./approveButton";
+import BetUpButton from "./betUpButton";
+import BetDownButton from "./betDownButton";
+import ClaimButton from "./claimButton";
 
 export default function BetAction() {
   const [transferAmount, setTransferAmount] = useState("");
@@ -61,31 +64,33 @@ export default function BetAction() {
 
   return (
     <div className={styles.container}>
-      {(!bettingAllowed || roundID == null) && (
+      {/* {(!bettingAllowed || roundID == null) && (
         <h2 className={styles.container_buttons} style={{ margin: "auto" }}>
           Betting Closed!
         </h2>
-      )}
-      {bettingAllowed && roundID != null && (
-        <div className={styles.container_entry}>
-          <form className={styles.form}>
-            <label>
-              Enter LICK Amount:
-              <input
-                type="number"
-                value={transferAmount}
-                placeholder="0"
-                onChange={(e) => setTransferAmount(e.target.value)}
-              />
-            </label>
-          </form>
-
-          <div className={styles.container_buttons}>
-            <BetButton action="UP" transferAmount={transferAmount}></BetButton>
-            <BetButton action="DOWN" transferAmount={transferAmount}></BetButton>
-          </div>
+      )} */}
+      {/* {bettingAllowed && roundID != null && (
+        
+      )} */}
+      <div className={styles.container_entry}>
+        <form className={styles.form}>
+          <label>
+            Enter MTK Amount:
+            <input
+              type="number"
+              value={transferAmount}
+              placeholder="0"
+              onChange={(e) => setTransferAmount(e.target.value)}
+            />
+          </label>
+        </form>
+        <ApproveButton transferAmount={transferAmount}></ApproveButton>
+        <div className={styles.container_buttons}>
+          <BetUpButton transferAmount={transferAmount}></BetUpButton>
+          <BetDownButton transferAmount={transferAmount}></BetDownButton>
         </div>
-      )}
+        <ClaimButton></ClaimButton>
+      </div>
     </div>
   );
 }
