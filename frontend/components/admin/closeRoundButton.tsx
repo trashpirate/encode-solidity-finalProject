@@ -1,24 +1,16 @@
-import styles from "./betAction.module.css";
-
-import { tokenABI } from '@/assets/MyERC20Token';
+import styles from "./admin.module.css";
 import { bettingABI } from "@/assets/Betting";
-
 import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
-import { parseUnits } from "viem";
 
 const TOKEN_CONTRACT = process.env.NEXT_PUBLIC_TOKEN_CONTRACT as `0x${string}`;
 const BETTING_CONTRACT = process.env.NEXT_PUBLIC_BETTING_ADDRESS as `0x${string}`;
 const NETWORK_SCAN = process.env.NEXT_PUBLIC_NETWORK_SCAN;
 
-// Open the round only if owner of the contract
-export default function OpenRoundButton(params: {closingTime: string}) {
-
-
+export default function CloseRoundButton() {
   const { config } = usePrepareContractWrite({
     address: BETTING_CONTRACT as `0x${string}`,
     abi: bettingABI,
-    functionName: 'openRound',
-    args: [parseUnits(`${params.closingTime ?? '2'}`, 18)],
+    functionName: "closeRound",
   });
   const { data, error, isError, write } = useContractWrite(config);
 
@@ -32,11 +24,11 @@ export default function OpenRoundButton(params: {closingTime: string}) {
       <div>
         <button
           className={styles.button}
-          style={{ background: "rgb(14, 207, 143)"}}
+          style={{ background: "rgb(240, 31, 94)" }}
           disabled={!write || isLoading}
           onClick={() => write?.()}
         >
-          {isLoading ? "Opening round..." : `Open Round`}
+          {isLoading ? "Closing Round..." : "Close Round"}
         </button>
       </div>
       {isSuccess && (
