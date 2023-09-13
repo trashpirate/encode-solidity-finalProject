@@ -13,6 +13,27 @@ https://sepolia.etherscan.io/address/0xa84517F6E1448B7d6Cb50c8Af1579F8bEB6092C7
 ## Betting Contract
 https://sepolia.etherscan.io/address/0xA515cCf18dEa97601c2A9cECBf041ba5ED486D7e
 
+## Transaction Hash Visualizer
+### Feature Description
+As a gamification and psychic incentive for user participation, the Transaction Hash Visualizer displays a new animal picture every time any user interacts with the betting contract. This is implemented in the backend, but not currently the frontend.
+
+### Concept of Operations
+The endpoint interface looks like:
+```
+curl http://localhost:3001/get-txnhash-visualizer
+==> 'https://{hostname:9000/path}/dogs/dog.1474.jpg'
+```
+That is, a `GET` request to the endpoint returns the URL of the dog image representing the most recent contract interaction (by any user).
+
+In more detail:
+1. Frontend or CLI client performs a `GET` request on `/get-txnhash-visualizer`.
+2. Backend performs an Etherscan RPC call of the form
+`https://api-sepolia.etherscan.io/api?module=account&action=txlist&sort=desc...` to get metadata for the most recent contract interaction.
+3. Backend maps the transaction hash to a dog image (there are at least 4000  images in the collection).
+4. Backend endpoint returns a response in the form of a URI to the dog image.
+
+### Special Setup
+`TXNHASH_VISUALIZER_PREFIX` and `ETHERSCAN_API_KEY` must be correctly defined in `.env.local` where they can be found by the backend server instance. `TNXHASH_VISUALIZER_PREFIX` is a URI prefix to a path containing the animal pictures to use. In this case, the animal pictures are from [https://www.kaggle.com/datasets/chetankv/dogs-cats-images](https://www.kaggle.com/datasets/chetankv/dogs-cats-images).
 
 ## Issues:
 - need to reenter bet amount after approving
@@ -21,3 +42,4 @@ https://sepolia.etherscan.io/address/0xA515cCf18dEa97601c2A9cECBf041ba5ED486D7e
 - claim button is not working yet
 - backend needs work to integrate smart contract interaction
 - adding admin panel functionality
+- Transaction Hash Visualizer is currently backend-only, and error handling can be improved.
