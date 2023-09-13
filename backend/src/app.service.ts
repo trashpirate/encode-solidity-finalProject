@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { TokenPriceDTO } from './dtos/tokenPrice.dto';
 import { RoundDTO } from './dtos/round.dt';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -221,5 +221,50 @@ export class AppService {
       console.log(ex);
       return null;
     }
+  }
+
+  async getTxnHashViz() : Promise<string> {
+    const MODULUS = 2048;
+    const CONTRACT_WATCH_ADDRESS = "0xA515cCf18dEa97601c2A9cECBf041ba5ED486D7e";
+
+    let response: AxiosResponse<any, any>;
+
+    try {
+      response = await axios.get(
+        'https://api-sepolia.etherscan.io/api',
+        {
+          headers: {
+            ['Accept']: 'application/json',
+            ['Content-Type']: 'application/json',
+          },
+          params: {
+            module: 'account',
+            action: 'txlist',
+            address: CONTRACT_WATCH_ADDRESS,
+            startblock: 0,
+            endblock: 99999999,
+            page: 1,
+            offset: 1,
+            sort: 'desc',
+            apikey: process.env.ETHERSCAN_API_KEY,
+          }
+        }
+      );
+    } catch (ex) {
+      // error
+      console.log(ex);
+      return null;
+    }
+
+    let txnhash = response.data["result"][0]["hash"];
+    let lsNibbles = txnhash.slice(-3);
+
+    // Valid image numbers start with 1
+    let iconIndex = (parseInt(lsNibbles, 16) % MODULUS) + 1;
+
+    let animal_uri = process.env.TXNHASH_VISUALIZER_PREFIX
+                      + `/dogs/dog.${iconIndex.toString()}.jpg`;
+
+    return animal_uri;
   }
 }

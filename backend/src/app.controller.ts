@@ -26,6 +26,11 @@ export class AppController {
   getCurrentRound() : RoundDTO {
     return this.appService.getCurrentRound();
   }
+  
+  @Get('get-txnhash-visualizer')
+  getTxnHashViz() : Promise<string> {
+    return this.appService.getTxnHashViz();
+  }
 
   @Post('set-round')
   setRound(@Body() newRound: RoundDTO): Promise<any> {
