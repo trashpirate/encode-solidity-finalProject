@@ -3,14 +3,18 @@ pragma solidity ^0.8.9;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
 import {MyERC20Token} from "./MyERC20.sol";
 
 /// @title Betting Contract using ERC20
 /// @author Nadina Oates
 /// @notice You can use this contract for running futures bets on price movement
 /// @dev
-/// @custom:teaching This is a bootcamp final project
+/// @custom:learning This is a bootcamp final project
 contract Betting is Ownable, ReentrancyGuard {
+    /// @notice Oracle interface from Chainlink
+    AggregatorV3Interface internal dataFeed;
     /// @notice Address of the token used as payment for the bets
     MyERC20Token public paymentToken;
     /// @notice betting free going to owner: rate (e.g. 200 = 2%, 150 = 1.50%)
@@ -30,21 +34,22 @@ contract Betting is Ownable, ReentrancyGuard {
     /// @notice Timestamp of the betting not allowed anymore: must be before closing time
     uint256 public roundLockTime;
     /// @notice Locked price at the start of the round
-    uint256 public lockedPrice;
+    int256 public lockedPrice;
+    /// @notice Locked price at the start of the round
+    int256 public endPrice;
     /// @notice Winner: UP == true, DOWN == false
     Position public winner;
     /// @notice reward amount that is totally paid out
     uint256 public rewardAmount;
     /// @notice reward amount to calculate the proportions between winners
     uint256 public rewardBaseAmount;
-
-    /// @notice Mapping of prize available for withdraw for each account
-    mapping(address => uint256) public prize;
+   
     /// @notice Mapping of betting info for each account
     mapping(address => BetInfo) public book;
 
     /// @notice Positions to bet on
     enum Position {
+        none,
         up,
         down
     }
@@ -62,6 +67,9 @@ contract Betting is Ownable, ReentrancyGuard {
 
         // set betting fee to 0.2%
         bettingFee = 20; 
+
+        // initialize oracle
+        dataFeed = AggregatorV3Interface(0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43);
     }
 
     /// @notice Passes when the betting round is at closed state
@@ -80,7 +88,7 @@ contract Betting is Ownable, ReentrancyGuard {
     }
 
     /// @notice Opens the betting round for receiving bets
-    function openRound(uint256 _lockTime, uint256 _closingTime, uint256 _startPrice) external onlyOwner whenRoundClosed {
+    function openRound(uint256 _lockTime, uint256 _closingTime) external onlyOwner whenRoundClosed {
         require(
             _closingTime > block.timestamp,
             "Closing time must be in the future"
@@ -91,8 +99,10 @@ contract Betting is Ownable, ReentrancyGuard {
         );
         roundClosingTime = _closingTime;
         roundLockTime = _lockTime;
-        lockedPrice = _startPrice;
+        lockedPrice = getLatestData();
 
+        rewardAmount = 0;
+        rewardBaseAmount = 0;
         roundOpen = true;
     }
 
@@ -119,10 +129,11 @@ contract Betting is Ownable, ReentrancyGuard {
 
     /// @notice Closes the betting round and calculates the prize, if any
     /// @dev Only owner can call this function at any time after the closing time
-    function closeRound(uint256 endPrice) external onlyOwner {
+    function closeRound() external onlyOwner {
         require(block.timestamp >= roundClosingTime, "Too soon to close");
         require(roundOpen, "Already closed");
-        
+        endPrice =  getLatestData() + 10; // oracle returns same value because of update frequency: (+ 10) simulates price increase
+
         uint256 fee;
         if (lockedPrice < endPrice) {
             // UP wins
@@ -142,6 +153,7 @@ contract Betting is Ownable, ReentrancyGuard {
         }
         else {
             // House wins
+            winner = Position.none;
             ownerPool += totalPool;
         }
         totalPool = 0;
@@ -150,7 +162,7 @@ contract Betting is Ownable, ReentrancyGuard {
     }
 
     function eligible(address account) public view returns (bool){
-        if (book[account].position == winner && book[account].claimed == false && book[account].amount > 0){
+        if (book[account].position == winner && book[account].claimed == false && book[account].amount > 0 && rewardAmount > 0){
             return true;
         }
         else {
@@ -167,6 +179,7 @@ contract Betting is Ownable, ReentrancyGuard {
 
     }
 
+    /// @notice retrieves expected reward for account
     function reward(address account) external view returns (uint256) {
         return (book[account].amount * rewardAmount / rewardBaseAmount);
     }
@@ -175,5 +188,18 @@ contract Betting is Ownable, ReentrancyGuard {
     function ownerWithdraw() external onlyOwner {
         require(ownerPool > 0, "Not enough fees collected");
         paymentToken.transfer(msg.sender, ownerPool);
+    }
+
+    /// @notice gets current price from oracle 
+    function getLatestData() internal view returns (int256) {
+        // prettier-ignore
+        (
+            /* uint80 roundID */,
+            int answer,
+            /*uint startedAt*/,
+            /*uint timeStamp*/,
+            /*uint80 answeredInRound*/
+        ) = dataFeed.latestRoundData();
+        return answer;
     }
 }
