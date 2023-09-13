@@ -11,13 +11,13 @@ export default function BetButton(params: { action: string; transferAmount: stri
   const betFunction = params.action === "UP" ? "betUp" : "betDown";
 
   const { config } = usePrepareContractWrite({
-    address: BETTING_CONTRACT as `0x${string}`,
+    address: BETTING_CONTRACT,
     abi: bettingABI,
     functionName: betFunction,
     args: [parseUnits(`${Number(params.transferAmount)}`, 18)],
   });
   const { data, error, isError, write } = useContractWrite(config);
-  console.log(error);
+  console.log(data);
 
   const { isLoading, isSuccess } = useWaitForTransaction({
     confirmations: 2,
@@ -41,7 +41,7 @@ export default function BetButton(params: { action: string; transferAmount: stri
           disabled={!write || isLoading}
           onClick={() => write?.()}
         >
-          {isLoading ? "Submitting..." : `Bet UP`}
+          {isLoading ? "Submitting..." : `Bet ${params.action}`}
         </button>
       </div>
       {isSuccess && (

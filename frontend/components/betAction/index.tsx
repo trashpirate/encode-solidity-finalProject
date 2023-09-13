@@ -62,31 +62,33 @@ export default function BetAction() {
 
   return (
     <div className={styles.container}>
-      {(!bettingAllowed || roundID == null) && (
+      {/* {(!bettingAllowed || roundID == null) && (
         <h2 className={styles.container_buttons} style={{ margin: "auto" }}>
           Betting Closed!
         </h2>
-      )}
-      {bettingAllowed && roundID != null && (
-        <div className={styles.container_entry}>
-          <form className={styles.form}>
-            <label>
-              Enter MTK Amount:
-              <input
-                type="number"
-                value={transferAmount}
-                placeholder="0"
-                onChange={(e) => setTransferAmount(e.target.value)}
-              />
-            </label>
-          </form>
-          <ApproveButton transferAmount={transferAmount}></ApproveButton>
-          <div className={styles.container_buttons}>
-            <BetButton action="UP" transferAmount={transferAmount}></BetButton>
-            <BetButton action="DOWN" transferAmount={transferAmount}></BetButton>
-          </div>
+      )} */}
+      {/* {bettingAllowed && roundID != null && (
+        
+      )} */}
+      <div className={styles.container_entry}>
+        <form className={styles.form}>
+          <label>
+            Enter MTK Amount:
+            <input
+              type="number"
+              value={transferAmount}
+              placeholder="0"
+              onChange={(e) => setTransferAmount(e.target.value)}
+            />
+          </label>
+        </form>
+
+        <div className={styles.container_buttons}>
+          <BetButton action="UP" transferAmount={transferAmount}></BetButton>
+          <BetButton action="DOWN" transferAmount={transferAmount}></BetButton>
         </div>
-      )}
+        <ApproveButton transferAmount={transferAmount}></ApproveButton>
+      </div>
     </div>
   );
 }
