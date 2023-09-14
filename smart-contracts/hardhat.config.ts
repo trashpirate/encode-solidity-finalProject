@@ -1,6 +1,5 @@
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
-
 import "@nomicfoundation/hardhat-toolbox";
 require("dotenv").config();
 
@@ -11,6 +10,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
       url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      blockNumber: 4287599
     }
     },
     ARB_MAINNET: {
