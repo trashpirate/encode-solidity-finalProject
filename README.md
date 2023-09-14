@@ -13,6 +13,15 @@ https://sepolia.etherscan.io/address/0xa84517F6E1448B7d6Cb50c8Af1579F8bEB6092C7
 ## Betting Contract
 https://sepolia.etherscan.io/address/0xAed298e5d34a32cf6510fB14b2fedBf8575536fe
 
+### Issues:
+- need to reenter bet amount after approving
+- starting round occurs separately in backend and on chain
+- claim reward should appear when round closed
+- claim button is not working yet
+- backend needs work to integrate smart contract interaction
+- adding admin panel functionality
+- Transaction Hash Visualizer is currently backend-only, and error handling can be improved.
+
 ## Transaction Hash Visualizer
 ### Feature Description
 As a gamification and psychic incentive for user participation, the Transaction Hash Visualizer displays a new animal picture every time any user interacts with the betting contract. This is implemented in the backend, but not currently the frontend.
@@ -34,12 +43,3 @@ In more detail:
 
 ### Special Setup
 `TXNHASH_VISUALIZER_PREFIX` and `ETHERSCAN_API_KEY` must be correctly defined in `.env.local` where they can be found by the backend server instance. `TNXHASH_VISUALIZER_PREFIX` is a URI prefix to a path containing the animal pictures to use. In this case, the animal pictures are from [https://www.kaggle.com/datasets/chetankv/dogs-cats-images](https://www.kaggle.com/datasets/chetankv/dogs-cats-images).
-
-## Issues:
-- need to reenter bet amount after approving
-- starting round occurs separately in backend and on chain
-- claim reward should appear when round closed
-- claim button is not working yet
-- backend needs work to integrate smart contract interaction
-- adding admin panel functionality
-- Transaction Hash Visualizer is currently backend-only, and error handling can be improved.
