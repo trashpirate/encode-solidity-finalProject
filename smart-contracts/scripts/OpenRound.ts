@@ -1,21 +1,16 @@
 import { ethers } from "ethers";
-import { Betting, Betting__factory} from "../typechain-types";
+import { Betting, Betting__factory } from "../typechain-types";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const contractAddress =  "0xAed298e5d34a32cf6510fB14b2fedBf8575536fe";
+const contractAddress = "0x10133dcf0F23922e94103E077244DEE243f30feC";
 
 async function main() {
-    // define provider
-  const provider = new ethers.JsonRpcProvider(
-    process.env.RPC_ENDPOINT_URL ?? ""
-  );
+  // define provider
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_ENDPOINT_URL ?? "");
 
   // define wallet
-  const wallet = new ethers.Wallet(
-    process.env.PRIVATE_KEYS?.split(",")[0] ?? "",
-    provider
-  );
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEYS?.split(",")[0] ?? "", provider);
 
   // wallet info
   console.log(`Using address ${wallet.address}`);
@@ -30,16 +25,31 @@ async function main() {
   const contractFactory = new Betting__factory(wallet);
   const contract = (await contractFactory.attach(contractAddress)) as Betting;
 
-  // open betting round
-  const timeoffset = 20 * 60;
-  const newLockTime = (Date.now() + timeoffset).toString();
-  const newClosingTime = (Date.now() + timeoffset + 5).toString();
-  const openTx = await contract.openRound(newLockTime, newClosingTime);
-  await openTx.wait();
+  // timestamps
+  const timeoffset = 1 * 60;
+  const blockNumber = await provider.getBlock("latest");
+  const timestamp = blockNumber?.timestamp ? blockNumber?.timestamp : 0;
+  const newLockTime = timestamp + timeoffset;
+  const newClosingTime = timestamp + 3 * timeoffset;
 
-  const openFlag = await contract.roundOpen();
-  openFlag ? console.log('Round is open.') : console.log('Round is closed.')
- 
+  console.log(new Date(newLockTime * 1000));
+  console.log(new Date(newClosingTime * 1000));
+
+  // open betting round
+  let openFlag = await contract.roundOpen();
+  openFlag ? console.log("Round is now open.") : console.log("Round is now closed.");
+  if (!openFlag) {
+    const openTx = await contract.openRound(newLockTime, newClosingTime);
+    await openTx.wait();
+  }
+  openFlag = await contract.roundOpen();
+  openFlag ? console.log("Round is now open.") : console.log("Round is now closed.");
+
+  const lockTime = await contract.roundLockTime();
+  const closeTime = await contract.roundClosingTime();
+
+  console.log("Lock time set to: " + new Date(Number(lockTime) * 1000));
+  console.log("Close time set to: " + new Date(Number(closeTime) * 1000));
 }
 
 main().catch((error) => {

@@ -4,10 +4,10 @@ import { Betting, Betting__factory, MyERC20Token, MyERC20Token__factory } from "
 import * as dotenv from "dotenv";
 dotenv.config();
 
-// run this script with hardhat: npx hardhat run ./scripts/VerifyTokenContract.ts --network NETWORKNAME
+// run this script with hardhat: npx hardhat run ./scripts/VerifyBettingContract.ts --network ETH_SEPOLIA
 
 const constructorArguments = ["0xa84517F6E1448B7d6Cb50c8Af1579F8bEB6092C7"];
-const contractAddress =  "0xAed298e5d34a32cf6510fB14b2fedBf8575536fe";
+const contractAddress =  "0x10133dcf0F23922e94103E077244DEE243f30feC";
 
 async function main() {
     // define provider

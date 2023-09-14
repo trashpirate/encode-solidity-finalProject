@@ -29,14 +29,16 @@ contract Betting is Ownable, ReentrancyGuard {
     uint256 public ownerPool;
     /// @notice Flag indicating whether the betting is open for bets or not
     bool public roundOpen;
-    /// @notice Timestamp of the round's next closing date and time
+    /// @notice Flag indicating when round is locked
     uint256 public roundClosingTime;
     /// @notice Timestamp of the betting not allowed anymore: must be before closing time
     uint256 public roundLockTime;
+    /// @notice Timestamp when betting starts
+    uint256 public roundOpeningTime;
     /// @notice Locked price at the start of the round
-    int256 public lockedPrice;
+    uint256 public lockedPrice;
     /// @notice Locked price at the start of the round
-    int256 public endPrice;
+    uint256 public endPrice;
     /// @notice Winner: UP == true, DOWN == false
     Position public winner;
     /// @notice reward amount that is totally paid out
@@ -99,7 +101,7 @@ contract Betting is Ownable, ReentrancyGuard {
         );
         roundClosingTime = _closingTime;
         roundLockTime = _lockTime;
-        lockedPrice = getLatestData();
+        lockedPrice = block.prevrandao; //getLatestData();
 
         rewardAmount = 0;
         rewardBaseAmount = 0;
@@ -108,7 +110,7 @@ contract Betting is Ownable, ReentrancyGuard {
 
     /// @notice the sender's address places a bet with a token amount for UP
     function betUp(uint256 amount) public whenRoundOpen {
-        // ownerPool += bettingFee * amount;
+        require(block.timestamp < roundLockTime, "Round is locked");
         totalPool += amount;
         upPool += amount;
         book[msg.sender].position = Position.up;
@@ -118,8 +120,7 @@ contract Betting is Ownable, ReentrancyGuard {
 
     /// @notice  the sender's address places a bet with a token amount for DOWN
     function betDown(uint256 amount) public whenRoundOpen {
-        // ownerPool += bettingFee * amount;
-
+        require(block.timestamp < roundLockTime, "Round is locked");
         totalPool += amount;
         downPool += amount;
         book[msg.sender].position = Position.down;
@@ -132,7 +133,7 @@ contract Betting is Ownable, ReentrancyGuard {
     function closeRound() external onlyOwner {
         require(block.timestamp >= roundClosingTime, "Too soon to close");
         require(roundOpen, "Already closed");
-        endPrice =  getLatestData() + 10; // oracle returns same value because of update frequency: (+ 10) simulates price increase
+        endPrice = block.prevrandao; // getLatestData() + 10; // oracle returns same value because of update frequency: (+ 10) simulates price increase
 
         uint256 fee;
         if (lockedPrice < endPrice) {

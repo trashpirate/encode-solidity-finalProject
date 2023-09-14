@@ -1,10 +1,9 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Betting, Betting__factory, MyERC20Token } from "../typechain-types";
+import { Betting, MyERC20Token } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
+import { time, reset } from "@nomicfoundation/hardhat-network-helpers";
 import { AddressLike } from "ethers";
-import { token } from "../typechain-types/@openzeppelin/contracts";
 
 let tokenAddress: AddressLike;
 
@@ -30,15 +29,26 @@ describe("Tests for Betting contract", async () => {
   let tokenContract: MyERC20Token;
   let accounts: HardhatEthersSigner[];
 
+  let timeoffset: number;
+  let timestamp: number;
+  let newLockTime: string;
+  let afterLockTime: number;
+  let newClosingTime: string;
+  let afterCloseTime: number;
+
   // deployment
   describe("when betting contract is deployed", async () => {
     beforeEach(async () => {
       accounts = await ethers.getSigners();
-      tokenContract = await loadFixture(deployTokenContract);
+      tokenContract = await deployTokenContract();
       await tokenContract.waitForDeployment();
 
-      bettingContract = await loadFixture(deployBettingContract);
+      bettingContract = await deployBettingContract();
       await bettingContract.waitForDeployment();
+    });
+
+    afterEach(async () => {
+      await reset();
     });
 
     it("should return correct token address", async () => {
@@ -55,19 +65,27 @@ describe("Tests for Betting contract", async () => {
   // admin
   describe("when admin interacts with betting contract", async () => {
     beforeEach(async () => {
+      timeoffset = 5 * 60;
+      timestamp = await time.latest();
+      newLockTime = (timestamp + timeoffset).toString();
+      afterLockTime = timestamp + 2 * timeoffset;
+      newClosingTime = (timestamp + 3 * timeoffset).toString();
+      afterCloseTime = timestamp + 4 * timeoffset;
+
       accounts = await ethers.getSigners();
-      tokenContract = await loadFixture(deployTokenContract);
+      tokenContract = await deployTokenContract();
       await tokenContract.waitForDeployment();
       await tokenContract.transfer(accounts[1].address, ethers.parseUnits("100000"));
 
-      bettingContract = await loadFixture(deployBettingContract);
+      bettingContract = await deployBettingContract();
       await bettingContract.waitForDeployment();
     });
 
-    it("returns correct closing time after opening round", async () => {
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
+    afterEach(async () => {
+      await reset();
+    });
 
+    it("returns correct closing time after opening round", async () => {
       // owner can open round
       await bettingContract.openRound(newLockTime, newClosingTime);
       const closingTime = await bettingContract.roundClosingTime();
@@ -75,9 +93,6 @@ describe("Tests for Betting contract", async () => {
     });
 
     it("round is flagged open after opening", async () => {
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
-
       // round is now flagged as open
       await bettingContract.openRound(newLockTime, newClosingTime);
       const roundOpen = await bettingContract.roundOpen();
@@ -85,9 +100,6 @@ describe("Tests for Betting contract", async () => {
     });
 
     it("locks current prize when open round", async () => {
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
-
       // locked prize is not zero
       await bettingContract.openRound(newLockTime, newClosingTime);
       const lockedPrice = await bettingContract.lockedPrice();
@@ -95,9 +107,6 @@ describe("Tests for Betting contract", async () => {
     });
 
     it("only owner can open round", async () => {
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
-
       // other account cannot open round
       await expect(bettingContract.connect(accounts[1]).openRound(newLockTime, newClosingTime)).to
         .be.reverted;
@@ -105,9 +114,6 @@ describe("Tests for Betting contract", async () => {
 
     it("round can be closed after closingTime", async () => {
       // open round
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
-      const afterCloseTime = Date.now() + 15;
       await bettingContract.openRound(newLockTime, newClosingTime);
 
       // close round
@@ -121,9 +127,6 @@ describe("Tests for Betting contract", async () => {
 
     it("round determins winner after closeRound correctly", async () => {
       // open round
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
-      const afterCloseTime = Date.now() + 15;
       await bettingContract.openRound(newLockTime, newClosingTime);
 
       // close round
@@ -146,9 +149,6 @@ describe("Tests for Betting contract", async () => {
 
     it("admin can withdraw fee", async () => {
       // open round
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
-      const afterCloseTime = Date.now() + 15;
       await bettingContract.openRound(newLockTime, newClosingTime);
 
       // betting
@@ -173,9 +173,6 @@ describe("Tests for Betting contract", async () => {
     });
     it("fee withdrawal reverted when pool empty", async () => {
       // open round
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
-      const afterCloseTime = Date.now() + 15;
       await bettingContract.openRound(newLockTime, newClosingTime);
 
       // close round
@@ -187,25 +184,39 @@ describe("Tests for Betting contract", async () => {
   });
 
   describe("when player interacts with betting contract", async () => {
-    const startPrice = ethers.parseUnits("1");
-    const endPrice = ethers.parseUnits("2");
     beforeEach(async () => {
+      timeoffset = 5 * 60;
+      timestamp = await time.latest();
+      newLockTime = (timestamp + timeoffset).toString();
+      afterLockTime = timestamp + 2 * timeoffset;
+      newClosingTime = (timestamp + 3 * timeoffset).toString();
+      afterCloseTime = timestamp + 4 * timeoffset;
+
       accounts = await ethers.getSigners();
-      tokenContract = await loadFixture(deployTokenContract);
+      tokenContract = await deployTokenContract();
       await tokenContract.waitForDeployment();
       await tokenContract.transfer(accounts[1].address, ethers.parseUnits("100000"));
       await tokenContract.transfer(accounts[2].address, ethers.parseUnits("100000"));
       await tokenContract.transfer(accounts[3].address, ethers.parseUnits("100000"));
       await tokenContract.transfer(accounts[4].address, ethers.parseUnits("100000"));
 
-      bettingContract = await loadFixture(deployBettingContract);
+      bettingContract = await deployBettingContract();
       await bettingContract.waitForDeployment();
     });
 
-    describe("when betting is open", async () => {
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
+    afterEach(async () => {
+      await reset();
+    });
+
+    describe("when betting round is open", async () => {
       beforeEach(async () => {
+        timeoffset = 5 * 60;
+        timestamp = await time.latest();
+        newLockTime = (timestamp + timeoffset).toString();
+        afterLockTime = timestamp + 2 * timeoffset;
+        newClosingTime = (timestamp + 3 * timeoffset).toString();
+        afterCloseTime = timestamp + 4 * timeoffset;
+
         await bettingContract.openRound(newLockTime, newClosingTime);
       });
 
@@ -260,17 +271,28 @@ describe("Tests for Betting contract", async () => {
         // check balance of player
         expect(balancePlayer1Before).to.eq(balancePlayer1After + amountPlayer1);
       });
+
+      it("betting reverts when round locked", async () => {
+        const betAmount = ethers.parseUnits("10");
+        await tokenContract.connect(accounts[1]).approve(bettingContract.getAddress(), betAmount);
+
+        await time.increaseTo(afterLockTime);
+        await expect(bettingContract.connect(accounts[1]).betDown(betAmount)).to.be.reverted;
+      });
     });
     describe("when betting is closed", async () => {
-      const newLockTime = (Date.now() + 5).toString();
-      const newClosingTime = (Date.now() + 10).toString();
-      const afterCloseTime = Date.now() + 15;
-
       const amountPlayer1 = ethers.parseUnits("15");
       const amountPlayer2 = ethers.parseUnits("20");
       const amountPlayer3 = ethers.parseUnits("10");
 
       beforeEach(async () => {
+        timeoffset = 5 * 60;
+        timestamp = await time.latest();
+        newLockTime = (timestamp + timeoffset).toString();
+        afterLockTime = timestamp + 2 * timeoffset;
+        newClosingTime = (timestamp + 3 * timeoffset).toString();
+        afterCloseTime = timestamp + 4 * timeoffset;
+
         await bettingContract.openRound(newLockTime, newClosingTime);
         // first player places bet down
         await tokenContract
@@ -293,6 +315,10 @@ describe("Tests for Betting contract", async () => {
         // close round
         await time.increaseTo(afterCloseTime);
         await bettingContract.closeRound();
+      });
+
+      afterEach(async () => {
+        await reset();
       });
 
       it("player can claim correct amount", async () => {
